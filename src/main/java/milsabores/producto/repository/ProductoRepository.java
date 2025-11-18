@@ -27,5 +27,8 @@ public interface ProductoRepository extends JpaRepository<Producto,Long> {
     
     //agrego consultas personalizadas
     List<Producto> findByCategoria_Nombre(String categoria); //nombre de categoria
+
+    List<Producto> findTop3ByOrderByIdDesc(); //agregué metodo para devolver los ultimos 3 product. agregados(17-11-25)
+
     
 }

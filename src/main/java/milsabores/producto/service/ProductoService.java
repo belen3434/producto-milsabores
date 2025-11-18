@@ -47,4 +47,10 @@ public class ProductoService {
     public void eliminar(Long id) {
         productoRepository.deleteById(id);
     }
+
+    //listamos los productos destacados (17-11-25)
+    public List<Producto> listarDestacados() {
+    return productoRepository.findTop3ByOrderByIdDesc();
+}
+
 }

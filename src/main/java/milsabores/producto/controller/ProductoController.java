@@ -73,6 +73,12 @@ public class ProductoController {
         return assembler.toModel(producto); // Busca un producto por su ID
     }
 
+    //lista prod destacados
+    @GetMapping("/destacados")
+public List<Producto> productosDestacados() {
+    return productoService.listarDestacados();
+}
+
     @Operation(summary = "Elimina un producto por ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Producto Eliminado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Producto.class))),
@@ -83,4 +89,6 @@ public class ProductoController {
         productoService.eliminar(id); // Elimina el producto por ID
         return ResponseEntity.noContent().build();
     }
+
+
 }

@@ -39,7 +39,7 @@ public class Producto {
 
     //Relación con Categoría
     @ManyToOne
-    @JoinColumn(name = "categoria_id", nullable = false) //FK
+    @JoinColumn(name = "categoria_id", nullable = true) //FK
     private Categoria categoria;
 
 

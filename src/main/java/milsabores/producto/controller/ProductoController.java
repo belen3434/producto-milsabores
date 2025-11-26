@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,7 +26,12 @@ import milsabores.producto.assemblers.ProductoModelAssembler;
 import milsabores.producto.model.Producto;
 import milsabores.producto.service.ProductoService;
 
-@CrossOrigin(origins = "http://localhost:5173") //permite que desde esta url se puedan hacer peticiones
+@CrossOrigin(
+    origins = "http://localhost:5173",
+    allowedHeaders = "*",
+    methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE},
+    allowCredentials = "true"
+)
 @RestController // Controlador REST
 @RequestMapping("/api/productos") // Ruta base para este recurso
 

@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -52,6 +53,7 @@ public class ProductoController {
             @ApiResponse(responseCode = "500", description = "El producto no se ha podido guardar,intente nuevamente...") })
 
     @PostMapping // RECIBE PETICIONES DE TIPO POST
+    @PreAuthorize("hasRole('ADMIN')")
     public Optional<Producto> guardarProducto(@RequestBody Producto producto) { // todo lo del cuerpo de petición se lo
                                                                                 // paso a la // variable producto
         return productoService.guardarProducto(producto);
@@ -91,10 +93,30 @@ public List<Producto> productosDestacados() {
             @ApiResponse(responseCode = "404", description = "Producto no encontrado.")
     })
     @DeleteMapping("/{id}") // PETICIÓN DELETE
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> eliminarProducto(@PathVariable Long id) {
         productoService.eliminar(id); // Elimina el producto por ID
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Reducir stock de producto")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Stock reducido exitosamente"),
+            @ApiResponse(responseCode = "404", description = "Producto no encontrado"),
+            @ApiResponse(responseCode = "400", description = "Stock insuficiente")
+    })
+    @PostMapping("/{id}/reducir-stock/{cantidad}")
+    public ResponseEntity<String> reducirStock(@PathVariable Long id, @PathVariable Integer cantidad) {
+        try {
+            boolean stockReducido = productoService.reducirStock(id, cantidad);
+            if (stockReducido) {
+                return ResponseEntity.ok("Stock reducido exitosamente");
+            } else {
+                return ResponseEntity.badRequest().body("Stock insuficiente");
+            }
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
 }

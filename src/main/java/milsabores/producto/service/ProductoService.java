@@ -50,7 +50,21 @@ public class ProductoService {
 
     //listamos los productos destacados (17-11-25)
     public List<Producto> listarDestacados() {
-    return productoRepository.findTop3ByOrderByIdDesc();
-}
+        return productoRepository.findTop3ByOrderByIdDesc();
+    }
+
+    // Método para reducir stock después de una venta
+    public boolean reducirStock(Long productoId, Integer cantidad) {
+        Optional<Producto> productoOpt = productoRepository.findById(productoId);
+        if (productoOpt.isEmpty()) {
+            throw new RuntimeException("Producto no encontrado");
+        }
+
+        //TODO: Implementar lógica de stock
+        //Aqui manejaremos el stock correctamente
+    
+        return true; // Temporal - implementar lógica real con tabla inventario
+    }
 
 }
+

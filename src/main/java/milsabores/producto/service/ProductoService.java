@@ -59,12 +59,19 @@ public class ProductoService {
         if (productoOpt.isEmpty()) {
             throw new RuntimeException("Producto no encontrado");
         }
-
-        //TODO: Implementar lógica de stock
-        //Aqui manejaremos el stock correctamente
-    
-        return true; // Temporal - implementar lógica real con tabla inventario
+        
+        Producto producto = productoOpt.get();
+        
+        // Verificar stock suficiente
+        if (producto.getStock() < cantidad) {
+            throw new RuntimeException("Stock insuficiente");
+        }
+        
+        // Reducir stock directamente en el producto
+        producto.setStock(producto.getStock() - cantidad);
+        productoRepository.save(producto);
+        
+        return true;
     }
 
 }
-

@@ -19,7 +19,7 @@ import milsabores.producto.model.Inventario;
 import milsabores.producto.service.InventarioService;
 
 @RestController
-@RequestMapping("/api/inventarios")
+@RequestMapping("/api/v1/inventarios")
 public class InventarioController {
 
     @Autowired

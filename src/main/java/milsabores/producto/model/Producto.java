@@ -50,4 +50,10 @@ public class Producto {
 
     @Column(nullable = false)
     private String rutaImagen;
+
+    @Column(nullable = true)
+    private Integer stock = 0;
+
+    @Column(name = "stock_critico", nullable = true)
+    private Integer stockCritico = 5;
 }

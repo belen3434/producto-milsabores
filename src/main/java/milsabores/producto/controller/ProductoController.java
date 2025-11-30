@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,7 +36,7 @@ import milsabores.producto.service.ProductoService;
     allowCredentials = "true"
 )
 @RestController // Controlador REST
-@RequestMapping("/api/productos") // Ruta base para este recurso
+@RequestMapping("/api/v1/productos") // Ruta base para este recurso
 
 public class ProductoController {
 
@@ -53,7 +55,7 @@ public class ProductoController {
             @ApiResponse(responseCode = "500", description = "El producto no se ha podido guardar,intente nuevamente...") })
 
     @PostMapping // RECIBE PETICIONES DE TIPO POST
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('VENDEDOR')")
     public Optional<Producto> guardarProducto(@RequestBody Producto producto) { // todo lo del cuerpo de petición se lo
                                                                                 // paso a la // variable producto
         return productoService.guardarProducto(producto);
@@ -68,6 +70,8 @@ public class ProductoController {
     public List<Producto> listarProductos() { // Devuelve todos los productos
         return productoService.listarTodos();
     }
+
+
 
     @Operation(summary = "Obtiene un producto por ID")
     @ApiResponses(value = {
@@ -87,6 +91,25 @@ public List<Producto> productosDestacados() {
     return productoService.listarDestacados();
 }
 
+    @Operation(summary = "Actualiza un producto existente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Producto actualizado exitosamente",
+            content = @Content(mediaType = "application/json", 
+            schema = @Schema(implementation = Producto.class))),
+            @ApiResponse(responseCode = "404", description = "Producto no encontrado")
+    })
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('VENDEDOR')")
+    public ResponseEntity<Producto> actualizarProducto(@PathVariable Long id, @RequestBody Producto producto) {
+        Optional<Producto> productoExistente = productoService.buscarPorId(id);
+        if (productoExistente.isPresent()) {
+            producto.setId(id);
+            Optional<Producto> productoActualizado = productoService.guardarProducto(producto);
+            return productoActualizado.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        }
+        return ResponseEntity.notFound().build();
+    }
+
     @Operation(summary = "Elimina un producto por ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Producto Eliminado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Producto.class))),
@@ -105,17 +128,35 @@ public List<Producto> productosDestacados() {
             @ApiResponse(responseCode = "404", description = "Producto no encontrado"),
             @ApiResponse(responseCode = "400", description = "Stock insuficiente")
     })
-    @PostMapping("/{id}/reducir-stock/{cantidad}")
-    public ResponseEntity<String> reducirStock(@PathVariable Long id, @PathVariable Integer cantidad) {
+    @PutMapping("/{id}/reducir-stock")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('VENDEDOR')")
+    public ResponseEntity<Producto> reducirStock(@PathVariable Long id, @RequestParam Integer cantidad) {
         try {
-            boolean stockReducido = productoService.reducirStock(id, cantidad);
-            if (stockReducido) {
-                return ResponseEntity.ok("Stock reducido exitosamente");
-            } else {
-                return ResponseEntity.badRequest().body("Stock insuficiente");
+            Optional<Producto> productoOpt = productoService.buscarPorId(id);
+            if (productoOpt.isEmpty()) {
+                return ResponseEntity.notFound().build();
             }
+            
+            Producto producto = productoOpt.get();
+            
+            // Verificar stock suficiente
+            if (producto.getStock() < cantidad) {
+                return ResponseEntity.badRequest().build();
+            }
+            
+            // Reducir stock
+            producto.setStock(producto.getStock() - cantidad);
+            
+            // Si stock llega a 0, marcar como no disponible
+            if (producto.getStock() <= 0) {
+                producto.setDisponible(false);
+            }
+            
+            Optional<Producto> productoActualizado = productoService.guardarProducto(producto);
+            return productoActualizado.map(ResponseEntity::ok).orElse(ResponseEntity.badRequest().build());
+            
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.badRequest().build();
         }
     }
 

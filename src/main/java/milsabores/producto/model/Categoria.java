@@ -22,9 +22,15 @@ public class Categoria {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 100, unique = true)
+    @Column(nullable = false, length = 100)
     private String nombre;
 
-    @Column(nullable = false, length = 100, unique = true)
+    @Column(length = 255)
+    private String descripcion;
+
+    @Column(length = 50)
     private String color;
+
+    @Column(nullable = false)
+    private Boolean activa = true;
 }

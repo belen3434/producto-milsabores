@@ -46,6 +46,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 UsernamePasswordAuthenticationToken authToken = 
                     new UsernamePasswordAuthenticationToken(username, null, Collections.singletonList(authority));
                 
+                // Debug logging
+                System.out.println("JWT Filter - Username: " + username);
+                System.out.println("JWT Filter - Role: " + role);
+                System.out.println("JWT Filter - Authority: " + authority.getAuthority());
+                
                 // Agregar userId como detalle para poder accederlo desde el controller
                 Long userId = jwtUtil.extractUserId(jwt);
                 authToken.setDetails(userId);

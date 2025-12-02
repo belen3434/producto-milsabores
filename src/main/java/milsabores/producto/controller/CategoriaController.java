@@ -24,7 +24,16 @@ import milsabores.producto.service.CategoriaService;
 
 @RestController
 @RequestMapping("/api/v1/categorias")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
+@CrossOrigin(
+    origins = {
+        "http://localhost:5173", 
+        "http://mil-sabores-final.s3-website-us-east-1.amazonaws.com",
+        "http://44.213.57.93",
+        "http://44.213.57.93:5173"
+    }, 
+    allowedHeaders = "*", 
+    allowCredentials = "true"
+)
 public class CategoriaController {
 
     @Autowired
